@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avi Chat App</title>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="/css/materialize.min.css"  media="screen,projection"/>
+<style>
+          .footer {
+   position: fixed;
+   left: 0;
+   bottom: 0;
+   width: 100%;
+   background-color: teal;
+   color: white;
+   text-align: center;
+}
+    </style>
+</head>
+<body>
+   <div class="container">
+        <h2 class="center teal-text ">Welcome to AviChat </h2>
+        <br>
+        <div class="row">
+            <div class="col m8 s12" id="nameEntry">
+                <form action="">
+                    <div class="row">
+                       
+                       <div class="col m8 s12 center">
+                           <h5>Please Enter Your Name</h5>
+                       </div>
+                       
+                       <div class="col m8 s12 center">
+                           <input type="text" id="username" autocomplete="off">
+                       </div>
+                       <div class="col m8 s12 center">
+                           <button class="teal white-text btn" id="join">Add Me</button>
+                       </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col m4 s12">
+                 <h5 class="center orange-text">Online Users</h5>
+                 <ul id="peoples" class="collection">
+
+                 </ul>
+
+            </div>
+
+            <div class="col m8 s12" id="Allmessage">
+                    <ul id="messages" class="collection"></ul>
+                    <form action="">
+                        <div class="row">
+                            
+                            <div class="col m12 s12 ">
+                                    <input id="m" autocomplete="off" placeholder="Type A Message"/>
+                            </div>
+                            <div class="col m12 s12 center">
+                                    <button class="btn green black-text center">Send</button>
+                            </div>
+                        </div>
+                      
+                      
+                    </form>
+            </div>
+        </div>
+       
+        <footer class="footer">
+           
+                        <p>This Chat App is made with Socket.io.Socket.IO enables 
+                            real-time, bidirectional and event-based communication.
+                         It works on every platform, browser or device, focusing equally
+                          on reliability and speed.</p>
+                        <p>Made By: <a href="https://github.com/avi-jkiapt" class="black-text">Avinash</a> </p>
+        </footer>
+   </div>
+
+    <script src="/socket.io/socket.io.js" ></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="/js/materialize.min.js"></script>
+    <script>
+        $(function () {
+            var socket = io();
+        $('#Allmessage').hide();
+        $('#username').focus();
+        $('#join').click(function(){
+
+       var username = $('#username').val();
+         if(username != '' && username!= null)
+           {
+               $('#nameEntry').hide();
+               $('#Allmessage').show();
+               socket.emit('join', username);
+               socket.on('newUser',function(message){
+                $('#messages').append($('<li class="collection-item brown lighten-4 white-text">').text(message));
+                 });
+           }
+        
+        });
+
+          $('form').submit(function(){
+              if($('#m').val() != '')
+               {
+                socket.emit('chat message', $('#m').val());
+                 $('#m').val('');
+               }
+            return false;
+          });
+
+        //show message
+        socket.on('chat message',function(name,msg){
+               $('#messages').append('<li class="collection-item yellow black-text"><strong class="red-text">' + name +'</strong> : ' + msg);
+        });
+
+        //show all people
+        socket.on('allUser',function(users){
+           $('#peoples').empty();
+           $.each(users,function(id,name){
+                $('#peoples').append('<li class="collection-item white-text teal center"><strong>' + name + '</strong></li>');
+           });
+        });
+
+        });
+    </script>
+</body>
+</html>
